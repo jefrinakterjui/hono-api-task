@@ -1,6 +1,7 @@
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { logger } from "hono/logger";
+import auth from "./modules/auth/auth.routes";
 
 const app = new OpenAPIHono();
 
@@ -18,6 +19,8 @@ app.doc("/doc", {
         description: "api  with hono and Drizzle"
     }
 })
+
+app.route("/auth", auth)
 
 app.get("/ui", swaggerUI({url: "/doc"}))
 
