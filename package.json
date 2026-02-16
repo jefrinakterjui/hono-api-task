@@ -20,11 +20,13 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@hono/swagger-ui": "^0.5.3",
     "@hono/zod-openapi": "^1.2.2",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.11.9",
     "pg": "^8.18.0",
+    "swagger-ui": "^5.31.0",
     "zod": "^4.3.6"
   }
 }
