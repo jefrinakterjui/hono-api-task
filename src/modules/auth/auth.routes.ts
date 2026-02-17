@@ -1,10 +1,10 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { authResponse, loginSchema, registerSchema } from "./auth.schema";
-import { db } from "../../db";
 import { users } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { sign } from "hono/jwt";
+import { db } from "../../db";
 
 const auth = new OpenAPIHono();
 
