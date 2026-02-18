@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { authResponse, loginSchema, registerSchema } from "./auth.schema";
-import { users } from "../../db/schema";
+import { users } from "../../db/schema/users.schema";
 import { eq } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { sign } from "hono/jwt";

@@ -2,7 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { createTaskSchema, paginatedTaskResponseSchema, paramIdSchema, taskQuerySchema, taskResponseSchema, updateTaskShema } from "./tasks.schema";
 import { db } from "../../db";
-import { tasks } from "../../db/schema";
+import { tasks } from "../../db/schema/tasks.schema";
 import { and, count, desc, eq, sql } from "drizzle-orm";
 
 export const app = new OpenAPIHono();

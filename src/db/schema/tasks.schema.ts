@@ -1,15 +1,6 @@
 import { relations } from "drizzle-orm";
 import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
-
-
-export const users = pgTable("users", {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull(),
-    email: text("email").notNull().unique(),
-    password: text("password").notNull(),
-    role: text("role").default("user"),
-    createdAt: timestamp("created_at").defaultNow()
-})
+import { users } from "./users.schema";
 
 export const tasks = pgTable("task",{
     id: serial("id").primaryKey(),
@@ -18,10 +9,6 @@ export const tasks = pgTable("task",{
     userId: integer("user_id").references(()=> users.id),
     createdAt: timestamp("created_at").defaultNow()
 })
-
-export const usersRelations = relations(users, ({many})=>({
-    task: many(tasks)
-}))
 
 export const taskRetations = relations(tasks, ({one})=>({
     author: one(users,{
