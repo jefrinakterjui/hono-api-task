@@ -1,9 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { authMiddleware } from "../../middleware/auth.middleware";
-import { createTaskSchema, paramIdSchema, taskResponseSchema, updateTaskShema } from "./tasks.schema";
+import { createTaskSchema, paginatedTaskResponseSchema, paramIdSchema, taskQuerySchema, taskResponseSchema, updateTaskShema } from "./tasks.schema";
 import { db } from "../../db";
 import { tasks } from "../../db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 
 export const app = new OpenAPIHono();
 
@@ -68,11 +68,14 @@ app.openapi(
         path:"/",
         tags:["Task"],
         security: [{Bearer:[]}],
+        request: {
+            query: taskQuerySchema,
+        },
         responses:{
             200:{
                 content:{
                     "application/json":{
-                        schema: z.array(taskResponseSchema)
+                        schema: paginatedTaskResponseSchema
                     }
                 },
                 description: "List of tasks"
@@ -81,12 +84,28 @@ app.openapi(
     }),
     async (c)=>{
         const payload = c.get("jwtPayload");
+        const { page, limit } = c.req.valid("query")
+
+        const pageNumber = Number(page) || 1;
+        const limitNumber = Number(limit) || 5;
+        const offset = ( pageNumber -1 ) * limitNumber;
+
+        const [totalResult] = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(tasks)
+            .where(eq(tasks.userId, payload.id));
+
+
+        const total = Number(totalResult?.count || 0);
+        const totalPages = Math.ceil(total / limitNumber);
 
         const allTasks = await db
             .select()
             .from(tasks)
             .where(eq(tasks.userId, payload.id))
-            .orderBy(desc(tasks.createdAt));
+            .orderBy(desc(tasks.createdAt))
+            .limit(limitNumber)
+            .offset(offset)
 
         const formattedTasks = allTasks.map((task) => ({
             id: task.id,
@@ -95,7 +114,15 @@ app.openapi(
             createdAt: task.createdAt ? task.createdAt.toISOString() : null, 
         }));
 
-        return c.json(formattedTasks, 200);
+        return c.json({
+            data: formattedTasks,
+            meta: {
+                total,
+                page: pageNumber,
+                limit: limitNumber,
+                totalPages,
+            },
+        }, 200);
     }
 );
 
